@@ -1,0 +1,23 @@
+{
+  "name": "100股小資選股助理",
+  "short_name": "選股助理",
+  "description": "專為 100 股小額投資與富邦低消設計的波段試算與紀律管理工具",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

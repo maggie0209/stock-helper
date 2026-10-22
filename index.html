@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>小資選股助理</title>
+  
+  <!-- PWA & iOS 設定 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="選股助理">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 440px;
+      padding-bottom: 30px;
+    }
+    .header-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .header-card h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .header-card p {
+      margin: 6px 0 0;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .quick-tags {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0 12px;
+      margin-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .quick-tags::-webkit-scrollbar { display: none; }
+    .tag-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .tag-btn:active { background: #0284c7; color: #fff; }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .label {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #38bdf8;
+    }
+    .btn-query {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0 16px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .btn-calc {
+      width: 100%;
+      padding: 14px;
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 6px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+    .btn-calc:active {
+      transform: scale(0.98);
+      background: #0369a1;
+    }
+    .status-msg {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: -6px;
+      margin-bottom: 12px;
+      min-height: 1.2em;
+    }
+    .result-section {
+      display: none;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    .stat-val { font-weight: bold; }
+    .val-tp { color: #f87171; font-size: 1.05rem; }
+    .val-sl { color: #4ade80; font-size: 1.05rem; }
+    .divider {
+      border: 0;
+      border-top: 1px dashed #334155;
+      margin: 10px 0;
+    }
+    .checklist-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #e2e8f0;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #0284c7;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header-card">
+    <h1>📈 100 股選股與波段助理</h1>
+    <p>嚴守 1 萬元內預算 · 富邦低消 1 元試算 · +5% 停利防守</p>
+  </div>
+
+  <!-- 快捷關注清單 -->
+  <div class="quick-tags">
+    <button class="tag-btn" onclick="selectQuick('00895', '富邦未來車 (特斯拉+AI)', 'etf')">🚗 00895 未來車</button>
+    <button class="tag-btn" onclick="selectQuick('006208', '富邦台50 (市值龍頭)', 'etf')">🏆 006208 台50</button>
+    <button class="tag-btn" onclick="selectQuick('00929', '復華台灣科技優息', 'etf')">💰 00929 高股息</button>
+    <button class="tag-btn" onclick="selectQuick('2887', '台新金 (金融穩健)', 'stock')">🏦 2887 台新金</button>
+    <button class="tag-btn" onclick="selectQuick('00830', '國泰費城半導體', 'etf')">⚡ 00830 費半</button>
+  </div>
+
+  <div class="card">
+    <span class="label">股票/ETF 代號</span>
+    <div class="input-row">
+      <input type="text" id="stockCode" placeholder="如：00895、2887">
+      <button class="btn-query" onclick="fetchLivePrice()">查現價</button>
+    </div>
+    <div class="status-msg" id="statusMsg">輸入代號點擊查現價，或直接點上方熱門標的</div>
+
+    <span class="label">標的名稱</span>
+    <div style="margin-bottom: 12px;">
+      <input type="text" id="stockName" placeholder="查詢後自動帶出或手動輸入" style="color: #94a3b8;">
+    </div>
+
+    <span class="label">目前股價 (元)</span>
+    <div style="margin-bottom: 12px;">
+      <input type="number" id="stockPrice" step="0.05" placeholder="例如：50.5">
+    </div>
+
+    <span class="label">標的類型 (決定證交稅)</span>
+    <div style="margin-bottom: 16px;">
+      <select id="stockType">
+        <option value="etf">ETF (證交稅 0.1%)</option>
+        <option value="stock">一般個股 (證交稅 0.3%)</option>
+      </select>
+    </div>
+
+    <button class="btn-calc" onclick="calculatePlan()">⚡ 一鍵精算 100 股進出場計畫</button>
+
+    <!-- 計算結果 -->
+    <div class="result-section" id="resultBox">
+      <div class="stat-row">
+        <span style="color:#94a3b8;">100 股投入本金：</span>
+        <span class="stat-val" id="resPrincipal">0 元</span>
+      </div>
+      <div class="stat-row">
+        <span style="color:#94a3b8;">來回成本 (富邦手續費+稅)：</span>
+        <span class="stat-val" id="resFee">0 元</span>
+      </div>
+      <hr class="divider">
+      <div class="stat-row">
+        <span>🔥 <strong>+5% 停利賣出價：</strong></span>
+        <span class="stat-val val-tp" id="resTpPrice">0 元</span>
+      </div>
+      <div class="stat-row">
+        <span style="color:#94a3b8;">預估落袋淨賺：</span>
+        <span class="stat-val val-tp" id="resTpProfit">+0 元</span>
+      </div>
+      <hr class="divider">
+      <div class="stat-row">
+        <span>🛡️ <strong>-3.5% 停損防守價：</strong></span>
+        <span class="stat-val val-sl" id="resSlPrice">0 元</span>
+      </div>
+      <div class="stat-row">
+        <span style="color:#94a3b8;">最大可承受虧損：</span>
+        <span class="stat-val val-sl" id="resSlLoss">-0 元</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下單前 4 大紀律檢查 -->
+  <div class="card">
+    <div class="checklist-title">🛡️ 進場前 4 大紀律檢查清單</div>
+    <div class="check-item"><input type="checkbox"> 1. 股價在 20 日月線之上（順勢操作，不接落刀）</div>
+    <div class="check-item"><input type="checkbox"> 2. 近 3 日外資或投信有買超，或回測均線有守</div>
+    <div class="check-item"><input type="checkbox"> 3. 今日沒有大漲急追，屬於震盪回檔好買點</div>
+    <div class="check-item"><input type="checkbox"> 4. 總本金在 1 萬元內，交割戶餘額充足</div>
+  </div>
+</div>
+
+<script>
+// 註冊 Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+function selectQuick(code, name, type) {
+  document.getElementById('stockCode').value = code;
+  document.getElementById('stockName').value = name;
+  document.getElementById('stockType').value = type;
+  fetchLivePrice();
+}
+
+async function fetchLivePrice() {
+  const code = document.getElementById('stockCode').value.trim();
+  const statusEl = document.getElementById('statusMsg');
+  if (!code) {
+    statusEl.innerText = '請先輸入代號';
+    return;
+  }
+  statusEl.innerText = '連線證交所行情中...';
+  
+  const twseUrl = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_${code}.tw&json=1&delay=0`;
+  const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(twseUrl)}`;
+
+  try {
+    const res = await fetch(proxyUrl);
+    const data = await res.json();
+    if (data.msgArray && data.msgArray.length > 0) {
+      const item = data.msgArray[0];
+      let p = parseFloat(item.z);
+      if (isNaN(p) || p === 0) p = parseFloat(item.y);
+      if (!isNaN(p) && p > 0) {
+        document.getElementById('stockPrice').value = p;
+        if (item.n) document.getElementById('stockName').value = item.n;
+        statusEl.innerText = `✅ 取得最新報價：${p} 元 (${item.n || code})`;
+        return;
+      }
+    }
+    statusEl.innerText = '⚠️ 即時報價未撮合，請直接輸入目前價格';
+  } catch (err) {
+    statusEl.innerText = '⚠️ 網路連線延遲，請直接手動輸入價格';
+  }
+}
+
+function calculatePlan() {
+  const price = parseFloat(document.getElementById('stockPrice').value);
+  const type = document.getElementById('stockType').value;
+  if (!price || price <= 0) {
+    alert('請先填寫正確股價！');
+    return;
+  }
+  const shares = 100;
+  const buyAmount = price * shares;
+
+  // 富邦證券 1.8 折、低消 1 元
+  const buyFee = Math.max(1, Math.round(buyAmount * 0.001425 * 0.18));
+
+  // 停利 +5%
+  const tpPrice = (price * 1.05).toFixed(2);
+  const tpSellAmount = tpPrice * shares;
+  const tpSellFee = Math.max(1, Math.round(tpSellAmount * 0.001425 * 0.18));
+  const taxRate = type === 'etf' ? 0.001 : 0.003;
+  const tpTax = Math.round(tpSellAmount * taxRate);
+  const tpProfit = Math.round(tpSellAmount - buyAmount - buyFee - tpSellFee - tpTax);
+
+  // 停損 -3.5%
+  const slPrice = (price * 0.965).toFixed(2);
+  const slSellAmount = slPrice * shares;
+  const slSellFee = Math.max(1, Math.round(slSellAmount * 0.001425 * 0.18));
+  const slTax = Math.round(slSellAmount * taxRate);
+  const slLoss = Math.round(buyAmount - slSellAmount + buyFee + slSellFee + slTax);
+
+  document.getElementById('resPrincipal').innerText = buyAmount.toLocaleString() + ' 元';
+  document.getElementById('resFee').innerText = (buyFee + tpSellFee + tpTax) + ' 元';
+  document.getElementById('resTpPrice').innerText = tpPrice + ' 元';
+  document.getElementById('resTpProfit').innerText = '+' + tpProfit.toLocaleString() + ' 元';
+  document.getElementById('resSlPrice').innerText = slPrice + ' 元';
+  document.getElementById('resSlLoss').innerText = '-' + slLoss.toLocaleString() + ' 元';
+
+  document.getElementById('resultBox').style.display = 'block';
+}
+</script>
+</body>
+</html>
