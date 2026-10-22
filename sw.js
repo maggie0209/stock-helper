@@ -1,5 +1,5 @@
 // 簡易 Service Worker：支援離線快取
-const CACHE_NAME = 'stock-app-cache-v1';
+const CACHE_NAME = 'stock-app-cache-v2';
 const ASSETS = [
   './',
   './index.html',
